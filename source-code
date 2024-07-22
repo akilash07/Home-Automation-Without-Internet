@@ -1,0 +1,376 @@
+#include <WiFi.h>
+#include <EEPROM.h>
+
+const char* ssid     = "PKCWIFI"  ;
+const char* password = "87654321@";
+
+
+const int led1 = 13;
+const int led2 = 12;
+const int led3 = 14;
+const int led4 = 27;
+const int led5 = 26;
+const int led6 = 25;
+
+
+int load1;
+int load2;
+int load3;
+int load4;
+int load5;
+int load6;
+
+WiFiServer server(80);
+
+String header;
+String light1state       = "OFF";
+String light2state       = "OFF";
+String light3state       = "OFF";
+String light4state       = "OFF";
+String light5state       = "OFF";
+String light6state       = "OFF";
+
+
+void setup() {
+  Serial.begin(115200);
+
+  pinMode(led1, OUTPUT);
+  pinMode(led2, OUTPUT);
+  pinMode(led3, OUTPUT);
+  pinMode(led4, OUTPUT);
+  pinMode(led5, OUTPUT);
+  pinMode(led6, OUTPUT);
+
+ 
+  EEPROM.begin(512);
+  
+  load1 = EEPROM.read(1);
+  load2 = EEPROM.read(2);
+  load3 = EEPROM.read(3);
+  load4 = EEPROM.read(4);
+  load5 = EEPROM.read(5);
+  load6 = EEPROM.read(6);
+
+  digitalWrite(led1,load1);
+  digitalWrite(led2,load2);
+  digitalWrite(led3,load3);
+  digitalWrite(led4,load4);  
+  digitalWrite(led5,load5);
+  digitalWrite(led6,load6);  
+  
+
+  connectWiFi();
+    
+  while ((!(WiFi.status() == WL_CONNECTED)))
+  {
+     connectWiFi();
+  }
+   
+  server.begin();
+  
+
+  
+
+}
+
+void loop(){
+  
+  digitalWrite(led1,load1);
+  digitalWrite(led2,load2);
+  digitalWrite(led3,load3);
+  digitalWrite(led4,load4);
+  digitalWrite(led5,load5);
+  digitalWrite(led6,load6);
+  
+  while ((!(WiFi.status() == WL_CONNECTED)))
+  {
+     connectWiFi();
+  }
+  
+    
+  WiFiClient client = server.available(); 
+  
+      
+
+  if (client) { 
+
+    Serial.println("New Client.");         
+    String currentLine = "";                
+    while (client.connected()) 
+    {           
+      if (client.available()) 
+      {           
+        char c = client.read();            
+        Serial.write(c);                   
+        header += c;
+        if (c == '\n') 
+        {                  
+          if (currentLine.length() == 0) 
+          {
+            client.println("HTTP/1.1 200 OK");
+            client.println("Content-type:text/html");
+            client.println("Connection: close");
+            client.println();
+            
+          
+
+
+
+          
+            if (header.indexOf("GET /1/on") >= 0) 
+            {
+              Serial.println("LIGHT 1 ON");
+              light1state= "ON";
+              load1=1;
+              romdata();
+            } 
+            else if (header.indexOf("GET /1/off") >= 0) 
+            {
+              Serial.println("LIGHT 1 OFF");
+              light1state = "OFF";
+              load1=0;
+              romdata();
+            }
+
+
+
+
+            else if (header.indexOf("GET /2/on") >= 0)
+            {
+              Serial.println("LIGHT 2 ON");
+              light2state = "ON";
+              load2=1;
+              romdata();
+            } 
+            else if (header.indexOf("GET /2/off") >= 0)
+            {
+              Serial.println("LIGHT 2 OFF");
+              light2state = "OFF";
+              load2=0;
+              romdata();     
+            }
+            
+             
+             
+
+            else if (header.indexOf("GET /3/on") >= 0)
+            {
+              Serial.println("LIGHT 3 ON");
+              light3state = "ON";
+              load3=1;
+              romdata();
+            } 
+            else if (header.indexOf("GET /3/off") >= 0)
+            {
+              Serial.println("LIGHT 3 OFF");
+              light3state = "OFF";
+              load3=0;
+              romdata();
+            }
+
+          
+            
+            
+
+            else if (header.indexOf("GET /4/on") >= 0)
+            {
+              Serial.println("LIGHT 4 ON");
+              light4state = "ON";
+              load4=1;
+              romdata();
+            } 
+            else if (header.indexOf("GET /4/off") >= 0)
+            {
+              Serial.println("LIGHT 4 OFF");
+              light4state = "OFF";
+              load4=0;
+              romdata();
+            }
+            
+            else if (header.indexOf("GET /5/on") >= 0)
+            {
+              Serial.println("LIGHT 5 ON");
+              light5state = "ON";
+              load5=1;
+              romdata();
+            } 
+            else if (header.indexOf("GET /5/off") >= 0)
+            {
+              Serial.println("LIGHT 5 OFF");
+              light5state = "OFF";
+              load5=0;
+              romdata();
+            }
+
+            else if (header.indexOf("GET /6/on") >= 0)
+            {
+              Serial.println("LIGHT 6 ON");
+              light6state = "ON";
+              load6=1;
+              romdata();
+            } 
+            else if (header.indexOf("GET /6/off") >= 0)
+            {
+              Serial.println("LIGHT 6 OFF");
+              light6state = "OFF";
+              load6=0;
+              romdata();
+            }
+          
+            
+            
+            
+            
+            
+            
+
+            client.println("<!DOCTYPE html><html>");
+            client.println("<head><meta name=\"viewport\" content=\"width=device-width, initial-scale=1\">");
+            client.println("<link rel=\"icon\" href=\"data:,\">");
+
+            client.println("<style>html { font-family: Helvetica; display: inline-block; margin: 0px auto; text-align: center; color:white; background-color:#000;}");
+            client.println(".button { background-color: darkorchid; border: none; border-radius:100px; color: #000; padding: 16px 90px;");
+            client.println("text-decoration: none; font-size: 30px; margin: 2px; cursor: pointer;}");
+            client.println(".button2 {background-color: #fff; border-radius:100px; color:#000;}</style></head>");
+            
+            client.println("<body><h1>HOME AUTOMATION</h1>");
+            
+
+
+
+           client.println("<p>LIGHT 1  " + light1state + "</p>");
+           
+            if (light1state=="OFF") {
+              client.println("<p><a href=\"/1/on\"><button class=\"button\">ON</button></a></p>");
+            } else {
+              client.println("<p><a href=\"/1/off\"><button class=\"button button2\">OFF</button></a></p>");
+            } 
+               
+            
+            
+
+            client.println("<p>LIGHT  2  " + light2state + "</p>");
+    
+            if (light2state=="OFF") {
+              client.println("<p><a href=\"/2/on\"><button class=\"button\">ON</button></a></p>");
+            } else {
+              client.println("<p><a href=\"/2/off\"><button class=\"button button2\">OFF</button></a></p>");
+            } 
+               
+            
+          
+            
+            
+      
+            client.println("<p>LIGHT  3  " + light3state + "</p>");
+ 
+            if (light3state=="OFF") {
+              client.println("<p><a href=\"/3/on\"><button class=\"button\">ON</button></a></p>");
+            } else {
+              client.println("<p><a href=\"/3/off\"><button class=\"button button2\">OFF</button></a></p>");
+            }
+
+
+
+
+
+
+            client.println("<p>LIGHT  4  " + light4state + "</p>");
+ 
+            if (light4state=="OFF") {
+              client.println("<p><a href=\"/4/on\"><button class=\"button\">ON</button></a></p>");
+            } else {
+              client.println("<p><a href=\"/4/off\"><button class=\"button button2\">OFF</button></a></p>");
+            }
+
+
+
+            client.println("<p>LIGHT  5  " + light5state + "</p>");
+ 
+            if (light5state=="OFF") {
+              client.println("<p><a href=\"/5/on\"><button class=\"button\">ON</button></a></p>");
+            } else {
+              client.println("<p><a href=\"/5/off\"><button class=\"button button2\">OFF</button></a></p>");
+            }
+
+
+
+            client.println("<p>LIGHT  6  " + light6state + "</p>");
+ 
+            if (light6state=="OFF") {
+              client.println("<p><a href=\"/6/on\"><button class=\"button\">ON</button></a></p>");
+            } else {
+              client.println("<p><a href=\"/6/off\"><button class=\"button button2\">OFF</button></a></p>");
+            }
+
+
+
+
+
+
+
+
+
+          client.println("</body></html>");
+            
+          client.println();
+
+          break;
+          } 
+          else 
+          {
+            currentLine = "";
+          }
+          } 
+          else if (c != '\r') 
+          {  
+          currentLine += c;    
+          }
+        }
+      }
+   
+    header = "";
+  
+    client.stop();
+    Serial.println("Client disconnected.");
+    Serial.println("");
+  }
+}
+
+void romdata(){
+EEPROM.write(1, load1);
+EEPROM.write(2, load2);
+EEPROM.write(3, load3);
+EEPROM.write(4, load4);
+EEPROM.write(5, load5);
+EEPROM.write(6, load6);
+EEPROM.commit();
+}
+
+void connectWiFi()
+{ 
+     pinMode(2, OUTPUT);
+     WiFi.disconnect();
+     WiFi.mode(WIFI_STA);
+     Serial.println("Connecting to wifi......");
+     WiFi.begin(ssid, password);
+     
+  while ((!(WiFi.status() == WL_CONNECTED)))
+  {
+    digitalWrite(2,HIGH);
+    delay(300);
+    digitalWrite(2,LOW);
+    delay(200);
+    Serial.println(" - ");
+  }
+  
+    Serial.println("");
+    Serial.println("WiFi connected");
+    Serial.println("NodeMCU Local IP is : ");
+    Serial.print((WiFi.localIP()));
+
+    digitalWrite(2,LOW);
+    delay(400);
+    digitalWrite(2,HIGH);
+
+}
